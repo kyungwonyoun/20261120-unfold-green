@@ -1,0 +1,8 @@
+{
+  "name": "UNFOLD GREEN",
+  "description": "Garden Design Studio — Designing spaces through plants and nature.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
