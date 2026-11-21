@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { MotionConfig } from 'motion/react';
+import { AmbientAudioPlayer } from './components/AmbientAudioPlayer';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { AboutPage } from './pages/AboutPage';
@@ -43,6 +44,7 @@ export default function App() {
             </Routes>
           </main>
           <Footer />
+          <AmbientAudioPlayer />
         </div>
       </BrowserRouter>
     </MotionConfig>

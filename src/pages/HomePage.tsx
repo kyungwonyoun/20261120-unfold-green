@@ -1,4 +1,4 @@
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { ArrowDown, ArrowRight, ArrowUpRight, BookOpen, Instagram, Mail, MessageSquare } from 'lucide-react';
 import { homeContent, siteSettings } from '../data/site';
@@ -7,7 +7,65 @@ import { FadeIn, ImageReveal } from '../components/MotionPrimitives';
 import { PageMeta } from '../components/PageMeta';
 import { ProtectedImage } from '../components/ProtectedImage';
 
+const SOFT_EASE = [0.22, 1, 0.36, 1] as const;
+
+interface SmokeTextProps {
+  text: string;
+  startDelay: number;
+  wordStagger?: number;
+  duration?: number;
+}
+
+function SmokeText({
+  text,
+  startDelay,
+  wordStagger = 0.065,
+  duration = 1.35,
+}: SmokeTextProps) {
+  const shouldReduceMotion = useReducedMotion();
+  const words = text.split(' ');
+
+  if (shouldReduceMotion) {
+    return <>{text}</>;
+  }
+
+  return (
+    <>
+      {words.map((word, idx) => (
+        <span key={`${word}-${idx}`}>
+          <motion.span
+            initial={{
+              opacity: 0,
+              y: 12,
+              x: -6,
+              scale: 0.96,
+              filter: 'blur(12px)',
+            }}
+            animate={{
+              opacity: 1,
+              y: 0,
+              x: 0,
+              scale: 1,
+              filter: 'blur(0px)',
+            }}
+            transition={{
+              duration,
+              delay: startDelay + idx * wordStagger,
+              ease: SOFT_EASE,
+            }}
+            className="inline-block will-change-[transform,opacity,filter]"
+          >
+            {word}
+          </motion.span>
+          {idx < words.length - 1 ? ' ' : ''}
+        </span>
+      ))}
+    </>
+  );
+}
+
 export function HomePage() {
+  const shouldReduceMotion = useReducedMotion();
   const selectedProjects = projects
     .filter((p) => p.featuredOnHome)
     .sort((a, b) => (a.featuredOrder ?? a.order) - (b.featuredOrder ?? b.order))
@@ -80,30 +138,47 @@ export function HomePage() {
         />
 
         <div className="relative z-10 h-full max-w-[1440px] mx-auto px-6 md:px-12 flex flex-col justify-center items-center text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-            className="max-w-3xl flex flex-col items-center"
-          >
+          <div className="max-w-3xl flex flex-col items-center">
+            {/* Stage 1: Very soft fade-in for brand name & studio label */}
             <div className="space-y-2.5">
-              <p className="text-4xl sm:text-5xl md:text-[56px] font-bold tracking-[-0.02em] leading-none text-white drop-shadow-sm">
+              <motion.p
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1.4, delay: 0.15, ease: SOFT_EASE }}
+                className="text-4xl sm:text-5xl md:text-[56px] font-bold tracking-[-0.02em] leading-none text-white drop-shadow-sm"
+              >
                 unfold green
-              </p>
-              <p className="text-base sm:text-lg md:text-xl font-normal tracking-[0.14em] text-white/95 drop-shadow-sm">
+              </motion.p>
+              <motion.p
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1.3, delay: 0.45, ease: SOFT_EASE }}
+                className="text-base sm:text-lg md:text-xl font-normal tracking-[0.14em] text-white/95 drop-shadow-sm"
+              >
                 {homeContent.hero.studioLabel}
-              </p>
+              </motion.p>
             </div>
 
+            {/* Stage 2: After brand fade-in settles, smoke-like drifting entrance */}
             <div className="mt-10 md:mt-14 space-y-2.5">
               <h1 className="text-lg sm:text-xl md:text-2xl font-medium tracking-[-0.01em] text-white leading-[1.55] break-keep drop-shadow-sm">
-                {homeContent.hero.headlineKo}
+                <SmokeText
+                  text={homeContent.hero.headlineKo}
+                  startDelay={1.6}
+                  wordStagger={0.07}
+                  duration={1.35}
+                />
               </h1>
               <p className="text-sm sm:text-base md:text-lg font-normal tracking-[0.01em] text-white/90 leading-relaxed drop-shadow-sm">
-                {homeContent.hero.headlineEn}
+                <SmokeText
+                  text={homeContent.hero.headlineEn}
+                  startDelay={2.25}
+                  wordStagger={0.06}
+                  duration={1.3}
+                />
               </p>
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* Bottom bar anchored inside Hero */}

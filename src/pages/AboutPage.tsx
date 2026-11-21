@@ -1,3 +1,4 @@
+import { motion, useReducedMotion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { aboutContent } from '../data/site';
@@ -5,8 +6,16 @@ import { FadeIn, ImageReveal } from '../components/MotionPrimitives';
 import { PageMeta } from '../components/PageMeta';
 import { ProtectedImage } from '../components/ProtectedImage';
 
+const DROPLET_LOBES = [
+  { cx: 200, cy: 214, startR: 6, endR: 168, delay: 0.1, duration: 6.5 },
+  { cx: 232, cy: 148, startR: 4, endR: 132, delay: 0.45, duration: 6.2 },
+  { cx: 152, cy: 266, startR: 4, endR: 128, delay: 0.7, duration: 5.8 },
+  { cx: 246, cy: 274, startR: 4, endR: 124, delay: 0.95, duration: 5.5 },
+];
+
 export function AboutPage() {
   const { philosophy, profile, career, studio } = aboutContent;
+  const shouldReduceMotion = useReducedMotion();
 
   return (
     <div className="bg-[#F7F8F6] text-[#383515] pt-24 md:pt-32">
@@ -16,17 +25,104 @@ export function AboutPage() {
       />
 
       {/* Page Intro */}
-      <section className="max-w-[1440px] mx-auto px-6 md:px-12 pb-16 md:pb-24 border-b border-[#383515]/10">
-        <FadeIn>
-          <p className="text-xs font-medium tracking-[0.12em] text-[#778732] mb-4">
-            ABOUT
-          </p>
-          <h1 className="text-[26px] sm:text-4xl md:text-5xl font-medium tracking-[-0.02em] leading-[1.35] text-[#383515] break-keep">
-            식물과 공간의 관계를 읽고,
-            <br />
-            시간에 따라 깊어지는 정원을 만듭니다.
-          </h1>
-        </FadeIn>
+      <section className="max-w-[1440px] mx-auto px-6 md:px-12 pb-14 md:pb-20 border-b border-[#383515]/10">
+        <div className="relative flex flex-col md:flex-row md:items-start md:min-h-[295px]">
+          <div className="relative z-10 md:pt-2">
+            <FadeIn>
+              <p className="text-xs font-medium tracking-[0.12em] text-[#778732] mb-4">
+                ABOUT
+              </p>
+              <h1 className="text-[24px] sm:text-3xl md:text-[34px] lg:text-[40px] xl:text-[44px] font-medium tracking-[-0.02em] leading-[1.35] text-[#383515] break-keep">
+                식물과 공간의 관계를 읽고,
+                <br />
+                <span className="md:whitespace-nowrap">
+                  시간에 따라 깊어지는 정원을 만듭니다.
+                </span>
+              </h1>
+            </FadeIn>
+          </div>
+
+          <div
+            className="relative z-0 mt-8 md:mt-0 flex justify-center md:block md:absolute md:right-0 lg:right-4 xl:right-8 md:top-0"
+            onContextMenu={(e) => e.preventDefault()}
+          >
+            <motion.div
+              initial={shouldReduceMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 0.92 }}
+              transition={{ duration: 1.4, delay: 0.05, ease: 'easeOut' }}
+              className="w-[230px] sm:w-[255px] lg:w-[275px] aspect-[400/424] select-none"
+            >
+              <svg
+                viewBox="0 0 400 424"
+                role="img"
+                aria-label="수목과 초화, 돌길이 어우러진 정원 디자인 수채화 스케치"
+                className="protected-media w-full h-full mix-blend-multiply overflow-visible"
+              >
+                <defs>
+                  <filter
+                    id="hanji-bleed"
+                    x="-25%"
+                    y="-25%"
+                    width="150%"
+                    height="150%"
+                  >
+                    <feTurbulence
+                      type="fractalNoise"
+                      baseFrequency="0.028"
+                      numOctaves="4"
+                      seed="11"
+                      result="paperNoise"
+                    />
+                    <feDisplacementMap
+                      in="SourceGraphic"
+                      in2="paperNoise"
+                      scale="46"
+                      xChannelSelector="R"
+                      yChannelSelector="G"
+                      result="irregularEdge"
+                    />
+                    <feGaussianBlur in="irregularEdge" stdDeviation="11" />
+                  </filter>
+
+                  <mask id="hanji-droplet-mask" maskUnits="userSpaceOnUse">
+                    <rect x="0" y="0" width="400" height="424" fill="black" />
+                    <g filter="url(#hanji-bleed)">
+                      {DROPLET_LOBES.map((lobe, idx) => (
+                        <motion.circle
+                          key={idx}
+                          cx={lobe.cx}
+                          cy={lobe.cy}
+                          fill="white"
+                          initial={
+                            shouldReduceMotion
+                              ? { r: lobe.endR, opacity: 1 }
+                              : { r: lobe.startR, opacity: 0.2 }
+                          }
+                          animate={{ r: lobe.endR, opacity: 1 }}
+                          transition={{
+                            duration: shouldReduceMotion ? 0 : lobe.duration,
+                            delay: shouldReduceMotion ? 0 : lobe.delay,
+                            ease: [0.32, 0.08, 0.24, 1],
+                          }}
+                        />
+                      ))}
+                    </g>
+                  </mask>
+                </defs>
+
+                <image
+                  href="/assets/aistudio/_______-______5feeb163.jpg"
+                  x="0"
+                  y="0"
+                  width="400"
+                  height="424"
+                  preserveAspectRatio="xMidYMid meet"
+                  mask="url(#hanji-droplet-mask)"
+                />
+              </svg>
+            </motion.div>
+          </div>
+        </div>
       </section>
 
       {/* 1. Design Philosophy */}
